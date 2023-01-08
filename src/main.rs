@@ -49,9 +49,15 @@ fn main() {
         if file_path.is_file() && extensions.contains(&extension.as_str()){
             let metadata = fs::metadata(&file_path).unwrap();
             let _last_modified = DateUtility::get_date(metadata.modified().unwrap());
-            let created = DateUtility::get_date(metadata.created().unwrap());
+            let _created = DateUtility::get_date(metadata.created().unwrap());
             let filename = file_path.as_path().file_name().unwrap().to_str().unwrap();
-            let new_file_path = format!("{}/{}", &path_dst, format!("{}/{}", created.year(), created.month()));
+
+            let target_date = match _last_modified.timestamp() < _created.timestamp(){
+                      true => _last_modified,
+                      false => _created
+            };
+
+            let new_file_path = format!("{}/{}", &path_dst, format!("{}/{}", target_date.year(), target_date.month()));
 
             if !FileUtility::exists(&new_file_path) {
                 match FileUtility::create_dir(&new_file_path) {
@@ -60,10 +66,10 @@ fn main() {
                 }
             }
 
-            // match fs::rename(file_path.to_str().unwrap(), format!("{}/{}", new_file_path, filename)) {
-            //     Ok(_) => { println!("Arquivo {} movido de {} para {}", filename, path_src, new_file_path) }
-            //     Err(error) => { println!("Erro ao mover arquivo {} de {} para {} Erro: {}", filename, path_src, new_file_path, error)  }
-            // }
+            match fs::rename(file_path.to_str().unwrap(), format!("{}/{}", new_file_path, &filename)) {
+                 Ok(_) => { println!("Arquivo {} movido de {} para {}", &filename, path_src, new_file_path) }
+                 Err(error) => { println!("Erro ao mover arquivo {} de {} para {} Erro: {}", &filename, path_src, new_file_path, error)  }
+            }
         }
     }
 }
