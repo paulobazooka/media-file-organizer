@@ -66,11 +66,20 @@ fn main() {
                 }
             }
 
-            match fs::rename(file_path.to_str().unwrap(), format!("{}/{}", new_file_path, &filename)) {
-                 Ok(_) => { println!("Arquivo {} movido de {} para {}", &filename, path_src, new_file_path) }
-                 Err(error) => { println!("Erro ao mover arquivo {} de {} para {} Erro: {}", &filename, path_src, new_file_path, error)  }
+            let dst_file_path = format!("{}/{}", &new_file_path, &filename);
+
+            // Se o arquivo não existir na pasta de destino
+            if !FileUtility::exists(&dst_file_path) {
+                 match fs::rename(file_path.to_str().unwrap(), dst_file_path) {
+                    Ok(_) => { println!("Arquivo {} movido de {} para {}", &filename, path_src, new_file_path) }
+                    Err(error) => { println!("Erro ao mover arquivo {} de {} para {} Erro: {}", &filename, path_src, new_file_path, error)  }
+                 }
+
+            } else {
+               print!("O arquivo {} já existe no local {} ", &filename, &new_file_path);
             }
-        }
+
+         }
     }
 }
 
