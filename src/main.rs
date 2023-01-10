@@ -1,5 +1,5 @@
 use std::fs;
-
+use colored::Colorize;
 use chrono::Datelike;
 use clap::Parser;
 
@@ -12,8 +12,22 @@ fn main() {
                                      "flv", "vob", "mkv", "wmv", "mpv", "amv", "m4v", "3gp", "siv", "qt", "yuv"];
 
     let args = Args::parse();
-    let path_src: String = String::from(args.src);
-    let path_dst: String = String::from(&args.dst);
+    let mut path_src: String = String::from(&args.src);
+    let mut path_dst: String = String::from(&args.dst);
+
+    // Verifica se o ultimo caracter é barra e elimina do path
+    match path_src.chars().last(){
+       Some('/') => path_src.pop(),
+       Some('\\') => path_src.pop(),
+       _ => None
+    };
+
+  // Verifica se o último caracter é barra e elimina do path
+   match path_dst.chars().last(){
+       Some('/') => path_dst.pop(),
+       Some('\\') => path_dst.pop(),
+       _ => None
+   };
 
     // verificar a pasta de origem
     let src_is_dir: bool = FileUtility::is_directory(&path_src);
@@ -33,9 +47,9 @@ fn main() {
     match src_exists {
         true => match src_is_dir {
             true => None::<()>,
-            false => panic!("Erro! O caminho {} não é uma pasta válida!", path_src)
+            false => panic!("{}", format!("Erro! O caminho {} não é uma pasta válida!", path_src).red())
         },
-        false => panic!("Erro! o caminho {} não existe!", path_src)
+        false => panic!("{}", format!("Erro! o caminho {} não existe!", &path_src).red())
     };
 
     for entry in fs::read_dir(&path_src).unwrap() {
@@ -62,7 +76,7 @@ fn main() {
             if !FileUtility::exists(&new_file_path) {
                 match FileUtility::create_dir(&new_file_path) {
                     Ok(_) => {}
-                    Err(_) => {println!("Erro ao criar a pasta {}", &new_file_path)}
+                    Err(_) => {println!("{}", format!("Erro ao criar a pasta {}", &new_file_path).red())}
                 }
             }
 
@@ -72,11 +86,11 @@ fn main() {
             if !FileUtility::exists(&dst_file_path) {
                  match fs::rename(file_path.to_str().unwrap(), dst_file_path) {
                     Ok(_) => { println!("Arquivo {} movido de {} para {}", &filename, path_src, new_file_path) }
-                    Err(error) => { println!("Erro ao mover arquivo {} de {} para {} Erro: {}", &filename, path_src, new_file_path, error)  }
+                    Err(error) => { println!("{}", format!("Erro ao mover arquivo {} de {} para {} Erro: {}", &filename, path_src, new_file_path, error).red())  }
                  }
 
             } else {
-               print!("O arquivo {} já existe no local {} ", &filename, &new_file_path);
+               println!("{}", format!("O arquivo {} já existe no local {} ", &filename, &new_file_path).yellow());
             }
 
          }

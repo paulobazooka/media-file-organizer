@@ -14,3 +14,4 @@ path = "src/main.rs"
 [dependencies]
 chrono = "0.4.23"
 clap = { version = "3.0.0-rc.8", features = ["derive"] }
+colored = "2.0.0"
